@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 class LoadingDialog extends StatelessWidget {
   final String message;
@@ -14,13 +13,18 @@ class LoadingDialog extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
+      useRootNavigator: true,
       builder: (_) => LoadingDialog(message: message),
     );
   }
 
   static void hide(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
+    // Dismiss via the root Navigator the dialog was pushed onto. Using
+    // go_router's context.pop() here could pop the underlying page route
+    // instead of the dialog, leaving a stuck spinner or a blank screen.
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (navigator.canPop()) {
+      navigator.pop();
     }
   }
 

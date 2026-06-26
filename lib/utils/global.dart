@@ -60,12 +60,17 @@ void showSnackBar(BuildContext context, String message, bool isSuccess) {
 Future<void> launchInBrowser(BuildContext context, String url) async {
   final uri = Uri.parse(url);
   LoadingDialog.show(context);
-  // if (await canLaunchUrl(uri)) {
-  await launchUrl(uri, mode: LaunchMode.externalApplication);
-  // } else {
-  if (context.mounted) {
-    LoadingDialog.hide(context);
-    // showSnackBar(context, 'Could not launch URL', false);
+  try {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (_) {
+    if (context.mounted) {
+      showSnackBar(context, 'Could not open the link', false);
+    }
+  } finally {
+    // Always dismiss the spinner, even if the launch failed, so the UI
+    // never gets stuck behind the loading dialog.
+    if (context.mounted) {
+      LoadingDialog.hide(context);
+    }
   }
-  // }
 }
